@@ -1,7 +1,0 @@
-.wp-list-table .column-learning-path {
-	width: 20%;
-}
-
-.wp-list-table .column-bookmark-category {
-	width: 20%;
-}
