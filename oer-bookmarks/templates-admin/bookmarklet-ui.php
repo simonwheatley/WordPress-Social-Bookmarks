@@ -104,7 +104,7 @@ if ( user_can_richedit() ) {
 				<div class="handlediv" title="<?php _e( 'Click to toggle' ); ?>"><br /></div>
 				<h3 class="hndle"><?php echo $tax->labels->name ?></h3>
 				<div class="inside">
-				<?php post_categories_meta_box( null, array(
+				<?php post_categories_meta_box( $null_post, array(
 					'id' => 'categorydiv',
 					'title' => $tax->labels->name,
 					'callback' => 'post_categories_meta_box',
@@ -118,7 +118,7 @@ if ( user_can_richedit() ) {
 				<div class="handlediv" title="<?php _e( 'Click to toggle' ); ?>"><br /></div>
 				<h3 class="hndle"><?php echo $tax->labels->name ?></h3>
 				<div class="inside">
-				<?php post_categories_meta_box( null, array(
+				<?php post_categories_meta_box( $null_post, array(
 					'id' => 'learning-pathdiv',
 					'title' => $tax->labels->name,
 					'callback' => 'post_categories_meta_box',

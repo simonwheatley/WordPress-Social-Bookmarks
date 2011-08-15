@@ -121,6 +121,8 @@ class OER_Bookmarklet extends OERB_Plugin {
 
 		$vars[ 'url' ] = isset($_GET['u']) ? esc_url($_GET['u']) : '';
 		
+		$vars[ 'null_post' ] = (object) array( 'ID' => 0 );
+		
 		$this->render_admin( 'bookmarklet-ui.php', $vars );
 		exit;
 	}

@@ -4,7 +4,7 @@
 Plugin Name: OER Bookmarks
 Plugin URI: http://simonwheatley.co.uk/wordpress/oerb
 Description: OER bookmarks and bookmarklet for bookmarking
-Version: 1.01
+Version: 1.02
 Author: Simon Wheatley
 Author URI: http://simonwheatley.co.uk//wordpress/
 */
