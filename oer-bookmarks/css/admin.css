@@ -1,7 +1,35 @@
+/* Event icon */
+#menu-posts-bookmark .wp-menu-image {
+    background: url(../images/admin-icon-bookmark.png) no-repeat 7px -28px !important;
+}
+#menu-posts-bookmark:hover .wp-menu-image, 
+#menu-posts-bookmark.wp-has-current-submenu .wp-menu-image {
+    background-position:7px 2px !important;
+}
+.icon32-posts-bookmark {
+	background: url(../images/admin-icon-bookmark-32px.png) no-repeat !important;
+}
+
+/* Bookmarks list table */
+
 .wp-list-table .column-learning-path {
 	width: 20%;
 }
 
 .wp-list-table .column-bookmark-category {
 	width: 20%;
+}
+
+/* Tools CSS (piggybacks and overrides the .pressthis styling) */
+
+body .bookmarkthis {
+	margin: 20px 0;
+}
+
+body .bookmarkthis a {
+	width: 143px;
+}
+
+body .bookmarkthis a span {
+	background: url(../images/bookmark-this.png) no-repeat -45px 5px ;
 }

@@ -24,6 +24,7 @@
 //           option key in delete_option method.
 // 1.3     - Locale stuff
 //         - Fix for get_option
+// 1.31    - Attempt to cope with Win32 directory separators
 // ======================================================================================
 
 
@@ -114,21 +115,25 @@ class OERB_Plugin {
 		if ( ! $name )
 			throw new exception( "Please pass the name parameter into the setup method." );
 		$this->name = $name;
+		// Attempt to handle Windows
+		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
+		$file = str_replace( $ds, '/', __FILE__ );
+		$plugin_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
 		// Setup the dir and url for this plugin/theme
-		if ( stripos( __FILE__, 'themes' ) ) {
+		if ( stripos( $file, 'themes' ) ) {
 			// This is a theme
 			$this->type = 'theme';
 			$this->dir = get_stylesheet_directory();
 			$this->url = get_stylesheet_directory_uri();
-		} elseif ( stripos( __FILE__, WP_PLUGIN_DIR ) !== false ) {
+		} elseif ( stripos( $file, $plugin_dir ) !== false ) {
 			// This is a plugin
-			$this->folder = rtrim( basename( dirname( __FILE__ ) ), '/' );
+			$this->folder = rtrim( basename( dirname( $file ) ), '/' );
 			$this->type = 'plugin';
-			$this->dir = trailingslashit( WP_PLUGIN_DIR ) . $this->folder;
+			$this->dir = trailingslashit( $plugin_dir ) . $this->folder;
 			$this->url = plugins_url( $this->folder );
 		} else {
 			// WTF?
-			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . WP_PLUGIN_DIR . ' or "themes" in ' . __FILE__ );
+			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugin_dir . ' or "themes" in ' . $file );
 		}
 		// Suffix for enqueuing
 		$this->suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '.dev' : '';

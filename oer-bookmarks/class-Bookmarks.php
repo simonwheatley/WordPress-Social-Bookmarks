@@ -43,8 +43,6 @@ class OER_Bookmarks extends OERB_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	public function __construct() {
-		// if ( function_exists( 'memmon_log' ) )
-		// 	memmon_log( 'constructing bookmarks' );
 		$this->setup( 'oerb' );
 		if ( is_admin() ) {
 			$this->add_action( 'admin_init' );
