@@ -53,6 +53,7 @@ class OER_Bookmarks extends OERB_Plugin {
 		$this->add_meta_box( 'oerb_url', 'Bookmarked URL', 'url_metabox', 'bookmark', 'normal', 'core' );
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_filter( 'the_content' );
+		$this->add_shortcode( 'learningpaths', 'shortcode_learning_paths' );
 		$this->saving = false;
 		$this->version = 1;
 	}
@@ -226,6 +227,21 @@ class OER_Bookmarks extends OERB_Plugin {
 		$vars[ 'url' ] = get_post_meta( $post->ID, '_bookmark_url', true );
 		$this->render_admin( 'url-metabox.php', $vars );
 	}	
+
+	/**
+	 * Callback function from the [learningpaths] shortcode, which prints
+	 * all the learning paths.
+	 *
+	 * @param array $attr Attributes attributed to the shortcode.
+	 * @param string $content Optional. Shortcode content.
+	 * @return string
+	 * @author Simon Wheatley
+	 **/
+	public function shortcode_learning_paths( $attr, $content = null ) {
+		$vars = array();
+		$vars[ 'paths' ] = get_terms( 'learning-path' );
+		return $this->capture( 'shortcode-learning-paths.php', $vars );
+	}
 
 	// UTILITIES
 	// =========
