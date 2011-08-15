@@ -22,6 +22,8 @@
 // 1.2     - Truncate helper method, admin notices/errors, throw error if not provided 
 //           with name in setup method call, default $pluginfile to __FILE__, bugfix around 
 //           option key in delete_option method.
+// 1.3     - Locale stuff
+//         - Fix for get_option
 // ======================================================================================
 
 
@@ -135,6 +137,24 @@ class OERB_Plugin {
 			// Admin notices
 			$this->add_action( 'admin_notices', '_admin_notices' );
 		}
+
+		$this->add_action( 'init', 'load_locale' );
+	}
+
+	/**
+	 * Hook called to change the locale directory.
+	 * 
+	 * @return void
+	 * @author © John Godley
+	 **/
+	function load_locale() {
+		// Here we manually fudge the plugin locale as WP doesnt allow many options
+		$locale = get_locale();
+		if( empty( $locale ) )
+			$locale = 'en_US';
+
+		$mofile = $this->dir( "/locale/$locale.mo" );
+		load_textdomain( $this->name, $mofile );
 	}
 	
 	/**
@@ -257,7 +277,6 @@ class OERB_Plugin {
 			error_log( "Plugin template error: $msg" );
 			echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
 		}
-			
 	}
 	
 	/**
@@ -445,7 +464,7 @@ class OERB_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	protected function url( $path ) {
-		return trailingslashit( $this->url ) . trim( $path, '/' );
+		return esc_url( trailingslashit( $this->url ) . trim( $path, '/' ) );
 	}
 	
 	/**
@@ -475,10 +494,10 @@ class OERB_Plugin {
 	 * @return mixed Whatever 
 	 * @author Simon Wheatley
 	 **/
-	public function get_option( $key ) {
+	public function get_option( $key, $value = null ) {
 		$option = get_option( $this->name );
 		if ( ! is_array( $option ) || ! isset( $option[ $key ] ) )
-			return null;
+			return $value;
 		return $option[ $key ];
 	}
 	
