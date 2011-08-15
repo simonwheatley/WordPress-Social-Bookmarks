@@ -53,7 +53,6 @@ class OER_Bookmarks extends OERB_Plugin {
 		$this->add_meta_box( 'oerb_url', 'Bookmarked URL', 'url_metabox', 'bookmark', 'normal', 'core' );
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_filter( 'the_content' );
-		$this->add_filter( 'the_excerpt', 'the_content' );
 		$this->saving = false;
 		$this->version = 1;
 	}
@@ -157,11 +156,11 @@ class OER_Bookmarks extends OERB_Plugin {
 			// @TODO: Cache the thumbnail locally
 			$bookmark_url_enc = urlencode( $bookmark_url );
 			$src = "http://s.wordpress.com/mshots/v1/{$bookmark_url_enc}?w=250";
-			$img = "<img src='$src' width='250' alt='Thumbnail of this website' class='oerb-bookmark-thumb' />";
+			$img = "<a href='" . esc_attr( $bookmark_url ) . "' class='oerb-bookmark-thumb-link'><img src='$src' width='250' alt='Thumbnail of this website' class='oerb-bookmark-thumb' /></a>";
 			// Visible URL…
-			$bookmark = "<p class='bookmark-url'><span>Original URL:</span> <a href='" . esc_attr( $bookmark_url ) . "'>" . esc_html( $bookmark_url ) . "</a></p>";
+			$bookmark = "<p class='oerb-bookmark-url'><span>Original URL:</span> <a href='" . esc_attr( $bookmark_url ) . "' class='oerb-bookmark-url'>" . esc_html( $bookmark_url ) . "</a></p>";
 		}
-		return $img . $bookmark . $content;
+		return $img . '<div class="oerb-content">' . $content . $bookmark . '</div>';
 	}
 
 		/**

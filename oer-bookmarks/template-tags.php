@@ -1,14 +1,5 @@
 <?php
 
-/*
-Plugin Name: OER Bookmarks
-Plugin URI: http://simonwheatley.co.uk/wordpress/oerb
-Description: OER bookmarks and bookmarklet for bookmarking
-Version: 1.03
-Author: Simon Wheatley
-Author URI: http://simonwheatley.co.uk//wordpress/
-*/
- 
 /*  Copyright 2011 Simon Wheatley
 
 This program is free software; you can redistribute it and/or modify
@@ -27,10 +18,28 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 */
 
-require_once( 'class-Bookmarks.php' );
-require_once( 'class-Bookmarklet.php' );
-require_once( 'class-Learning-Path-Widget.php' );
-require_once( 'class-All-Paths-Widget.php' );
-require_once( 'template-tags.php' );
+/**
+ * Print the bookmark URL.
+ *
+ * @param int $post_id A post ID, otherwise the current ID in The Loop is used
+ * @return void
+ * @author Simon Wheatley
+ **/
+function bookmark_url( $post_id = null )	{
+	echo get_bookmark_url( $post_id );
+}
+
+/**
+ * Return the bookmark URL.
+ *
+ * @param int $post_id A post ID, otherwise the current ID in The Loop is used
+ * @return string A URL
+ * @author Simon Wheatley
+ **/
+function get_bookmark_url( $post_id = null )	{
+	if ( is_null( $post_id ) )
+		$post_id = get_the_ID();
+	return get_post_meta( $post_id, '_bookmark_url', true );
+}
 
 ?>
