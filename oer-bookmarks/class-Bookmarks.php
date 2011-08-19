@@ -148,40 +148,47 @@ class OER_Bookmarks extends OERB_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	public function the_content( $content ) {
-		global $post;
+		$post = get_post( get_the_ID() );
+		if ( 'bookmark' != $post->post_type )
+			return $content;
+
+		$bookmark_url = get_post_meta( $post->ID, '_bookmark_url', true );
+		if ( ! $bookmark_url )
+			return $content;
+
 		$img = '';
 		$bookmark = '';
-		$bookmark_url = get_post_meta( $post->ID, '_bookmark_url', true );
-		if ( $post->post_type == 'bookmark' && $bookmark_url ) {
-			// Thumbnail…
-			// @TODO: Cache the thumbnail locally
-			$bookmark_url_enc = urlencode( $bookmark_url );
-			$src = "http://s.wordpress.com/mshots/v1/{$bookmark_url_enc}?w=250";
-			$img = "<a href='" . esc_attr( $bookmark_url ) . "' class='oerb-bookmark-thumb-link'><img src='$src' width='250' alt='Thumbnail of this website' class='oerb-bookmark-thumb' /></a>";
-			// Visible URL…
-			$bookmark = "<p class='oerb-bookmark-url'><span>Original URL:</span> <a href='" . esc_attr( $bookmark_url ) . "' class='oerb-bookmark-url'>" . esc_html( $bookmark_url ) . "</a></p>";
-		}
+
+		// Thumbnail…
+		// @TODO: Cache the thumbnail locally, trickier than you might think…
+		$bookmark_url_enc = urlencode( $bookmark_url );
+		$src = "http://s.wordpress.com/mshots/v1/{$bookmark_url_enc}?w=250";
+		$img = "<a href='" . esc_attr( $bookmark_url ) . "' class='oerb-bookmark-thumb-link'><img src='$src' width='250' alt='Thumbnail of this website' class='oerb-bookmark-thumb' /></a>";
+
+		// Visible URL…
+		$bookmark = "<p class='oerb-bookmark-url'><span>Original URL:</span> <a href='" . esc_attr( $bookmark_url ) . "' class='oerb-bookmark-url'>" . esc_html( $bookmark_url ) . "</a></p>";
+
 		return $img . '<div class="oerb-content">' . $content . $bookmark . '</div>';
 	}
 
-		/**
-		 * Add in a Featured Image column
-		 *
-		 * @param array $cols An array of column information 
-		 * @return void
-		 * @author Simon Wheatley
-		 **/
-		public function manage_bookmark_posts_columns( $cols ) {
-			// Add Learning Path in before Author
-			$new_cols = array();
-			foreach ( $cols as $name => $label ) {
-				$new_cols[ $name ] = $label;
-				if ( $name == 'title' ) {
-					$new_cols[ 'learning-path' ] = 'Learning Paths';
-				}
+	/**
+	 * Add in a Learning Path column.
+	 *
+	 * @param array $cols An array of column information 
+	 * @return void
+	 * @author Simon Wheatley
+	 **/
+	public function manage_bookmark_posts_columns( $cols ) {
+		// Add Learning Path in before Author
+		$new_cols = array();
+		foreach ( $cols as $name => $label ) {
+			$new_cols[ $name ] = $label;
+			if ( $name == 'title' ) {
+				$new_cols[ 'learning-path' ] = 'Learning Paths';
 			}
-			return $new_cols;
 		}
+		return $new_cols;
+	}
 
 		/**
 		 * Content for the different columns.
