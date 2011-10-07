@@ -32,7 +32,7 @@ class OER_Bookmarks extends OERB_Plugin {
 	 * The current version, used to cache bust for JS and CSS,
 	 * and to know when to flush rewrite rules, update DB, etc.
 	 *
-	 * @var string
+	 * @var int
 	 **/
 	protected $version;
 
@@ -304,7 +304,7 @@ class OER_Bookmarks extends OERB_Plugin {
 		// as otherwise that upgrade will run every time!
 
 		error_log( "BFOB: Done upgrade" );
-		// update_option( 'bfob_version', $this->version );
+		update_option( 'bfob_version', $this->version );
 	}
 
 } // END OER_Bookmarks class 
