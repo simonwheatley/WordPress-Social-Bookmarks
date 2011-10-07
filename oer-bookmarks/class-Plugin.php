@@ -25,6 +25,10 @@
 // 1.3     - Locale stuff
 //         - Fix for get_option
 // 1.31    - Attempt to cope with Win32 directory separators
+// 1.32    - Add a remove_filter method
+// 1.33    - Add `sil_plugins_dir` and `sil_plugins_url` filters, to allow placement 
+//           outside the `wp-content/plugins/` folder, for example using `require_once` 
+//           to include from the theme `functions.php`.
 // ======================================================================================
 
 
@@ -111,30 +115,41 @@ class OERB_Plugin {
 	 * @return void
 	 * @author Simon Wheatley
 	 **/
-	public function setup( $name = '' ) {
+	public function setup( $name = '', $type = null ) {
 		if ( ! $name )
 			throw new exception( "Please pass the name parameter into the setup method." );
 		$this->name = $name;
-		// Attempt to handle Windows
+
+		// Attempt to handle a Windows
 		$ds = ( defined( 'DIRECTORY_SEPARATOR' ) ) ? DIRECTORY_SEPARATOR : '\\';
 		$file = str_replace( $ds, '/', __FILE__ );
-		$plugin_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
+		$plugins_dir = str_replace( $ds, '/', WP_PLUGIN_DIR );
 		// Setup the dir and url for this plugin/theme
-		if ( stripos( $file, 'themes' ) ) {
+		if ( 'theme' == $type ) {
 			// This is a theme
 			$this->type = 'theme';
 			$this->dir = get_stylesheet_directory();
 			$this->url = get_stylesheet_directory_uri();
-		} elseif ( stripos( $file, $plugin_dir ) !== false ) {
+		} elseif ( stripos( $file, $plugins_dir ) !== false || 'plugin' == $type ) {
 			// This is a plugin
-			$this->folder = rtrim( basename( dirname( $file ) ), '/' );
+			$this->folder = trim( basename( dirname( $file ) ), '/' );
 			$this->type = 'plugin';
-			$this->dir = trailingslashit( $plugin_dir ) . $this->folder;
-			$this->url = plugins_url( $this->folder );
+			// Allow someone to override the assumptions we're making here about where 
+			// the plugin is held. For example, if this plugin is included as part of 
+			// the files for a theme, in wp-content/themes/[your theme]/plugins/ then
+			// you could hook `sil_plugins_dir` and `sil_plugins_url` to correct
+			// our assumptions.
+			// N.B. Because this code is running when the file is required, other plugins
+			// may not be loaded and able to hook these filters!
+			$plugins_dir = apply_filters( 'sil_plugins_dir', $plugins_dir, $this->name );
+			$plugins_url = apply_filters( 'sil_plugins_url', plugins_url(), $this->name );
+			$this->dir = trailingslashit( $plugins_dir ) . $this->folder . '/';
+			$this->url = trailingslashit( $plugins_url ) . $this->folder . '/';
 		} else {
 			// WTF?
-			error_log( 'PLUGIN/THEME ERROR: Cannot find ' . $plugin_dir . ' or "themes" in ' . $file );
+			error_log( "PLUGIN/THEME ERROR (type: $type): Cannot find ($plugins_dir) or \"themes\" in ($file)." );
 		}
+
 		// Suffix for enqueuing
 		$this->suffix = defined('SCRIPT_DEBUG') && SCRIPT_DEBUG ? '.dev' : '';
 		
@@ -191,6 +206,21 @@ class OERB_Plugin {
 	 **/
 	function add_filter ($filter, $function = '', $priority = 10, $accepted_args = 1) {
 		add_filter ($filter, array (&$this, $function == '' ? $filter : $function), $priority, $accepted_args);
+	}
+
+
+	/**
+	 * De-register a WordPress filter and map it back to the calling object
+	 *
+	 * @param string $action Name of the action
+	 * @param string $function Function name (optional)
+	 * @param int $priority WordPress priority (optional)
+	 * @param int $accepted_args Number of arguments the function accepts (optional)
+	 * @return void
+	 * @author © John Godley
+	 **/
+	function remove_filter ($filter, $function = '', $priority = 10, $accepted_args = 1) {
+		remove_filter ($filter, array (&$this, $function == '' ? $filter : $function), $priority, $accepted_args);
 	}
 
 
@@ -412,7 +442,7 @@ class OERB_Plugin {
 		else if ( file_exists( $this->dir( "templates/$template_file" ) ) )
 			return $this->dir( "templates/$template_file" );
 		// Oh dear. We can't find the template.
-		$msg = sprintf( __( "This plugin template could not be found: %s" ), $this->dir( "templates/$template_file" ) );
+		$msg = sprintf( __( "This plugin template could not be found, perhaps you need to hook `sil_plugins_dir` and `sil_plugins_url`: %s" ), $this->dir( "templates/$template_file" ) );
 		error_log( "Template error: $msg" );
 		echo "<p style='background-color: #ffa; border: 1px solid red; color: #300; padding: 10px;'>$msg</p>";
 	}
@@ -574,6 +604,6 @@ class OERB_Plugin {
 	}
 	
 
-} // END *_Plugin class 
+} // END OERB_Plugin class 
 
 ?>

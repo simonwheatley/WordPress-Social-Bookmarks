@@ -4,7 +4,7 @@ Donate link: url
 Tags: bookmarks, oer, learning collections
 Requires at least: 3.2
 Tested up to: 3.2.1
-Stable tag: 1.05
+Stable tag: 1.06
  
 Provides a bookmark post type, along with a bookmarklet for adding bookmarks
 
@@ -20,10 +20,18 @@ Provides a bookmark post type, along with a bookmarklet for adding bookmarks.
 
 == Changelog ==
 
+= 1.06 =
+
+* Add new capability for adding/editing/deleting Learning Paths
+* Ensure all users who can manage categories can manage Learning Paths
+* Ensure particularly that Authors can manage Learning Paths
+
 = 1.05 =
+
 * BUGFIX: Don't assume we're dealing with a bookmark post_type when filtering the_content
 * Add readme.txt
 * Bump version to 1.05
 
 = 1.04 =
+
 * First release

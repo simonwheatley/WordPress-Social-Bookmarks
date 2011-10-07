@@ -43,19 +43,19 @@ class OER_Bookmarks extends OERB_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	public function __construct() {
-		$this->setup( 'oerb' );
+		$this->setup( 'oerb', 'plugin' );
 		if ( is_admin() ) {
 			$this->add_action( 'admin_init' );
 			$this->add_action( 'manage_bookmark_posts_custom_column', null, 0, 2 );
 			$this->add_filter( 'manage_bookmark_posts_columns' );
 		}
-		$this->add_action( 'init' );
+		$this->add_action( 'init', 'init_early', 0 );
 		$this->add_meta_box( 'oerb_url', 'Bookmarked URL', 'url_metabox', 'bookmark', 'normal', 'core' );
 		$this->add_action( 'save_post', null, null, 2 );
 		$this->add_filter( 'the_content' );
 		$this->add_shortcode( 'learningpaths', 'shortcode_learning_paths' );
 		$this->saving = false;
-		$this->version = 1;
+		$this->version = 2;
 	}
 	
 	// HOOKS AND ALL THAT
@@ -78,7 +78,7 @@ class OER_Bookmarks extends OERB_Plugin {
 	 *
 	 * @return void
 	 **/
-	public function init() {
+	public function init_early() {
 		$labels = array(
 			'name' => __( 'Bookmarks', 'oerb' ),
 			'singular_name' => __( 'Bookmark', 'oerb' ),
@@ -118,7 +118,15 @@ class OER_Bookmarks extends OERB_Plugin {
 			'add_or_remove_items' => __( 'Add or remove learning paths', 'oerb' ),
 			'choose_from_most_used' => __( 'Choose from the most used learning paths', 'oerb' ),
 		);
+		// Note the new custom capability, we add this to roles in maybe_upgrade below
+		$capabilities = array(
+			'manage_terms'	=> 'manage_paths',
+			'edit_terms'	=> 'manage_paths',
+			'delete_terms'	=> 'manage_paths',
+			'assign_terms'	=> 'edit_posts',
+		);
 		$args = array(
+			'capabilities' => $capabilities,
 			'hierarchical' => true,
 			'labels' => $labels,
 		);
@@ -270,21 +278,33 @@ class OER_Bookmarks extends OERB_Plugin {
 
 		error_log( "BFOB: Current version: v$version" );
 		
-		$done_upgrade = false;
-
 		if ( $version < 1 ) {
-			error_log( "BFOB: Flushed rewrite rules" );
 			flush_rewrite_rules();
-			$done_upgrade = true;
+			error_log( "BFOB: Flushed rewrite rules" );
+		}
+		
+		if ( $version < 2 ) {
+			$wp_roles = new WP_Roles();
+			// var_dump( $wp_roles );
+			// exit;
+			// Iterate all roles and add the manage_paths cap where that role
+			// can manage_categories
+			foreach ( $wp_roles->role_names as $role_name => $role_display_name ) {
+				$some_role = $wp_roles->get_role( $role_name );
+				if ( $some_role->has_cap( 'manage_categories' ) )
+					$some_role->add_cap( 'manage_paths' );
+			}
+			// Ensure Authors can definitely manage_paths
+			$author = $wp_roles->get_role( 'author' );
+			$author->add_cap( 'manage_paths' );
+			error_log( "BFOB: Added permissions for new capability" );
 		}
 
 		// N.B. Remember to increment the version property above when you add a new IF, 
 		// as otherwise that upgrade will run every time!
 
-		if ( $done_upgrade ) {
-			error_log( "BFOB: Done upgrade" );
-			update_option( 'bfob_version', $this->version );
-		}
+		error_log( "BFOB: Done upgrade" );
+		// update_option( 'bfob_version', $this->version );
 	}
 
 } // END OER_Bookmarks class 

@@ -43,7 +43,7 @@ class OER_Bookmarklet extends OERB_Plugin {
 	 * @author Simon Wheatley
 	 **/
 	public function __construct() {
-		$this->setup( 'bfob' );
+		$this->setup( 'bfob', 'plugin' );
 		if ( is_admin() ) {
 			$this->add_action( 'wp_ajax_nopriv_bfob', 'redirect_to_login' );
 			$this->add_action( 'wp_ajax_nopriv_bfob_post', 'redirect_to_login' );
